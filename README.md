@@ -1,4 +1,4 @@
-Application de Suivi des Ventes**
+Application de Suivi des Ventes
 
 **Introduction:**
 Cette application de suivi des ventes a été développée dans le cadre d'un projet visant à permettre à une entreprise de vente de suivre en temps réel les performances de ses commerciaux et de ses ventes. L'application offre plusieurs fonctionnalités pour gérer les ventes, afficher des statistiques et suivre les performances des commerciaux.
