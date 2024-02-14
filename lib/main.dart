@@ -25,7 +25,9 @@ class MyApp extends StatelessWidget {
       routes: {
         '/': (context) => LoginPage(),
         '/sales': (context) => SalesPage(),
-        '/newSale': (context) => NewSalePage(onSaleAdded: (Sale ) {  },),
+        '/newSale': (context) => NewSalePage(onSaleAdded: (sale) {
+          SalesPage.updateSales(sale);
+        }),
         '/ranking': (context) => RankingPage(sales: SalesPage.sales),
         '/stats': (context) => StatsPage(sales: SalesPage.sales),
       },
@@ -178,7 +180,7 @@ class NewSalePage extends StatelessWidget {
                   price: double.tryParse(_priceController.text) ?? 0.0,
                   status: _statusController.text,
                 );
-                onSaleAdded(sale);
+                onSaleAdded(sale); // Utilisation de la fonction de rappel
                 Navigator.pop(context);
               },
               child: Text('Enregistrer'),
