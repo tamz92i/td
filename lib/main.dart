@@ -8,8 +8,9 @@ class Sale {
   final String seller;
   final String sale;
   final double price;
+  final String status;
 
-  Sale({required this.seller, required this.sale, required this.price});
+  Sale({required this.seller, required this.sale, required this.price, required this.status});
 }
 
 class MyApp extends StatelessWidget {
@@ -23,16 +24,28 @@ class MyApp extends StatelessWidget {
       initialRoute: '/',
       routes: {
         '/': (context) => SalesPage(),
-        '/newSale': (context) => NewSalePage(),
-        '/ranking': (context) => RankingPage(sales: [],),
+        '/newSale': (context) => NewSalePage(onSaleAdded: (sale) {
+          SalesPage.updateSales(sale);
+        }),
+        '/ranking': (context) => RankingPage(sales: SalesPage.sales),
+        '/stats': (context) => StatsPage(sales: SalesPage.sales),
       },
     );
   }
 }
 
-class SalesPage extends StatelessWidget {
-  final List<Sale> sales = [];
+class SalesPage extends StatefulWidget {
+  static List<Sale> sales = [];
 
+  static void updateSales(Sale sale) {
+    sales.add(sale);
+  }
+
+  @override
+  _SalesPageState createState() => _SalesPageState();
+}
+
+class _SalesPageState extends State<SalesPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -42,11 +55,7 @@ class SalesPage extends StatelessWidget {
       body: Center(
         child: ElevatedButton(
           onPressed: () {
-            Navigator.pushNamed(context, '/newSale').then((newSale) {
-              if (newSale != null) {
-                sales.add(newSale as Sale);
-              }
-            });
+            Navigator.pushNamed(context, '/newSale');
           },
           child: Text('Nouvelle Vente'),
         ),
@@ -64,12 +73,13 @@ class SalesPage extends StatelessWidget {
             ListTile(
               title: Text('Classement'),
               onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => RankingPage(sales: sales),
-                  ),
-                );
+                Navigator.pushNamed(context, '/ranking');
+              },
+            ),
+            ListTile(
+              title: Text('Statistiques'),
+              onTap: () {
+                Navigator.pushNamed(context, '/stats');
               },
             ),
           ],
@@ -83,6 +93,10 @@ class NewSalePage extends StatelessWidget {
   final TextEditingController _sellerController = TextEditingController();
   final TextEditingController _saleController = TextEditingController();
   final TextEditingController _priceController = TextEditingController();
+  final TextEditingController _statusController = TextEditingController();
+  final Function(Sale) onSaleAdded;
+
+  NewSalePage({required this.onSaleAdded});
 
   @override
   Widget build(BuildContext context) {
@@ -111,14 +125,21 @@ class NewSalePage extends StatelessWidget {
               keyboardType: TextInputType.numberWithOptions(decimal: true),
             ),
             SizedBox(height: 20),
+            TextField(
+              controller: _statusController,
+              decoration: InputDecoration(labelText: 'Statut'),
+            ),
+            SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
                 final sale = Sale(
                   seller: _sellerController.text,
                   sale: _saleController.text,
                   price: double.tryParse(_priceController.text) ?? 0.0,
+                  status: _statusController.text,
                 );
-                Navigator.pop(context, sale);
+                onSaleAdded(sale);
+                Navigator.pop(context);
               },
               child: Text('Enregistrer'),
             ),
@@ -147,6 +168,43 @@ class RankingPage extends StatelessWidget {
             title: Text(sales[index].seller),
             subtitle: Text(sales[index].sale),
             trailing: Text('${sales[index].price}'),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class StatsPage extends StatelessWidget {
+  final List<Sale> sales;
+
+  StatsPage({required this.sales});
+
+  @override
+  Widget build(BuildContext context) {
+    Map<String, int> salesStats = {};
+
+    sales.forEach((sale) {
+      if (salesStats.containsKey(sale.seller)) {
+        salesStats[sale.seller] = salesStats[sale.seller]! + 1;
+      } else {
+        salesStats[sale.seller] = 1;
+      }
+    });
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Statistiques'),
+      ),
+      body: ListView.builder(
+        itemCount: salesStats.length,
+        itemBuilder: (context, index) {
+          final seller = salesStats.keys.elementAt(index);
+          final salesCount = salesStats.values.elementAt(index);
+
+          return ListTile(
+            title: Text(seller),
+            subtitle: Text('Nombre de ventes: $salesCount'),
           );
         },
       ),
