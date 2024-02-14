@@ -23,13 +23,53 @@ class MyApp extends StatelessWidget {
       ),
       initialRoute: '/',
       routes: {
-        '/': (context) => SalesPage(),
-        '/newSale': (context) => NewSalePage(onSaleAdded: (sale) {
-          SalesPage.updateSales(sale);
-        }),
+        '/': (context) => LoginPage(),
+        '/sales': (context) => SalesPage(),
+        '/newSale': (context) => NewSalePage(onSaleAdded: (Sale ) {  },),
         '/ranking': (context) => RankingPage(sales: SalesPage.sales),
         '/stats': (context) => StatsPage(sales: SalesPage.sales),
       },
+    );
+  }
+}
+
+class LoginPage extends StatelessWidget {
+  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Login'),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            TextField(
+              controller: _usernameController,
+              decoration: InputDecoration(labelText: 'Username'),
+            ),
+            SizedBox(height: 20),
+            TextField(
+              controller: _passwordController,
+              decoration: InputDecoration(labelText: 'Password'),
+              obscureText: true,
+            ),
+            SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {
+                // Replace this with your authentication logic
+                // For now, just navigate to the sales page
+                Navigator.pushNamed(context, '/sales');
+              },
+              child: Text('Login'),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
